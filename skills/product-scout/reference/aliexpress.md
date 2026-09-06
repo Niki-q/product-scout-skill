@@ -9,6 +9,17 @@ applies here. This adapts the same architecture for the regions this
 project targets — Cyprus, Ukraine, Moldova — instead; see `regions.md` for
 per-region status (short version: CY and UA work, MD does not).
 
+**Authenticated session (real account cookies) — preferred when
+available**, same principle as `amazon.md` §6: confirmed live, real
+AliExpress session cookies (`context.addCookies()`) log the session in
+(account greeting visible, e.g. "Привет, `<name>`") and the existing
+`region=CY` localization keeps working cleanly through it — search,
+region tag in `pdp_npi`, and free-shipping detection all unaffected.
+Session cookies do expire (a first cookie set from earlier the same day
+had gone stale a few hours later, requiring a fresh export) — if login
+checks fail, ask for a fresh export rather than assuming the mechanism
+itself broke.
+
 ## 1. Region must be real, not assumed
 
 AliExpress prices and shipping estimates are meaningless unless the

@@ -59,18 +59,38 @@ the real number:
 
 ```js
 const bodyText = document.body.innerText;
-const m = bodyText.match(/([A-Z]{3})\s?([\d.,]+)\s*Shipping\s*&\s*Import Charges to ([^\n]+?)(?:\s*Details)?\n/i);
-// m[1] = currency, m[2] = amount, m[3] = region label (may need trimming trailing "Details")
+const m = bodyText.match(/([$€£]|[A-Z]{3}\s?)\s*([\d.,]+)\s*Shipping\s*&\s*Import Charges to ([^\n]+?)(?:\s*Details)?\n/i);
+// m[1] = currency symbol/code, m[2] = amount, m[3] = region/name label (may need trimming trailing "Details")
 ```
 
-This line was seen at **€15.04** on a **€17.21** item (Cyprus) — shipping
-added 87% to the item price. Compute `total_price` per `card-schema.md`
-and never present the bare item price as if it were the full cost. Its
-presence isn't consistent across every offer type (a marketplace-fulfilled
-offer showed no charges line for any of CY/UA/MD on one test product in
-earlier testing) — when genuinely absent after checking, `shipping.cost`
-is `null`, not a guess, and say so explicitly rather than silently
-presenting only the item price. For any region outside CY/UA/MD, either
-use the same "Deliver to" dialog if it lists that country, or note plainly
-that the shown price is for the default region and may not reflect the
-buyer's actual landed cost.
+The currency symbol here follows the **account's display-currency
+preference** (`i18n-prefs` cookie), not necessarily the delivery region —
+confirmed live: an anonymous session with delivery set to Cyprus showed
+`EUR`, while an authenticated session (real cookies, `i18n-prefs=USD`)
+with the exact same delivery city showed `$` throughout, same item,
+equivalent amount. Match on symbol OR a 3-letter code, don't assume `EUR`.
+
+This line was seen at **€15.04 / $17.46** on a **€17.21 / $19.99** item
+(Cyprus) — shipping added ~87% to the item price both times. Compute
+`total_price` per `card-schema.md` and never present the bare item price
+as if it were the full cost. Its presence isn't consistent across every
+offer type (a marketplace-fulfilled offer showed no charges line for any
+of CY/UA/MD on one test product in earlier testing) — when genuinely
+absent after checking, `shipping.cost` is `null`, not a guess, and say so
+explicitly rather than silently presenting only the item price. For any
+region outside CY/UA/MD, either use the same "Deliver to" dialog if it
+lists that country, or note plainly that the shown price is for the
+default region and may not reflect the buyer's actual landed cost.
+
+## 6. Authenticated session (real account cookies) — preferred when available
+
+If the buyer provides real, logged-in Amazon session cookies, use them
+(via `context.addCookies()`) instead of an anonymous session — confirmed
+live to work cleanly (login confirmed via `#nav-link-accountList
+.nav-line-1` showing "Hello, `<name>`"). This is strictly better than the
+anonymous "Deliver to `<country>`" flow: the account's own **saved address
+carries a real city/postal code** (confirmed live: "Larnaca 6018", not
+just "Cyprus"), so shipping estimates come out more precise automatically,
+with no extra region-picker steps needed. Don't attempt to add cookies for
+a marketplace the buyer hasn't provided credentials for — fall back to the
+anonymous "Deliver to" flow in that case.
