@@ -44,17 +44,33 @@ listing with an unknown/low review count is not automatically better than
 a 4.6★ organic listing with 19,000+ ratings — in a live test run, the
 latter was the actual best pick despite the lower star rating.
 
-## 5. Shipping / region
+## 5. Shipping / region — mandatory per card, not optional
 
 For CY/UA/MD specifically, see `regions.md` — no separate storefront
 switch is needed: the default `amazon.com` "Deliver to" dialog (header
 button → "or ship outside the US") lists all three directly and was
 confirmed live to return identical pricing across them on a test product.
-Amazon's own checkout (or the "Shipping & Import Charges" line, where
-shown) has the real, final shipping/import estimate for the buyer's
-delivery address — more reliable than guessing from the product page
-alone, and worth checking per-listing since its presence wasn't consistent
-across every offer type in testing (see `regions.md`'s caveat on this).
-For any region outside CY/UA/MD, either use the same "Deliver to" dialog
-if it lists that country, or note plainly that the shown price is for the
-default region and may not reflect the buyer's actual landed cost.
+
+**Every verified card must capture the actual shipping/import cost from
+its own product page** — this is part of verification (§3), not a
+follow-up nice-to-have. Confirmed live, on the product page (not the
+search card), a **"Shipping & Import Charges to <region>" line** carries
+the real number:
+
+```js
+const bodyText = document.body.innerText;
+const m = bodyText.match(/([A-Z]{3})\s?([\d.,]+)\s*Shipping\s*&\s*Import Charges to ([^\n]+?)(?:\s*Details)?\n/i);
+// m[1] = currency, m[2] = amount, m[3] = region label (may need trimming trailing "Details")
+```
+
+This line was seen at **€15.04** on a **€17.21** item (Cyprus) — shipping
+added 87% to the item price. Compute `total_price` per `card-schema.md`
+and never present the bare item price as if it were the full cost. Its
+presence isn't consistent across every offer type (a marketplace-fulfilled
+offer showed no charges line for any of CY/UA/MD on one test product in
+earlier testing) — when genuinely absent after checking, `shipping.cost`
+is `null`, not a guess, and say so explicitly rather than silently
+presenting only the item price. For any region outside CY/UA/MD, either
+use the same "Deliver to" dialog if it lists that country, or note plainly
+that the shown price is for the default region and may not reflect the
+buyer's actual landed cost.

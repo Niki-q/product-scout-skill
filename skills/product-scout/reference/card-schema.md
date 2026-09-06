@@ -22,15 +22,49 @@ did not verify cleanly and should not be presented as a result.
   "sold_count":      number | null,   // AliExpress/eBay expose this; Amazon usually doesn't
   "condition":       "new" | "used" | "refurbished" | null,  // mainly relevant on eBay
   "shipping": {
-    "cost":          number | "free" | null,
+    "cost":          number | "free" | null,   // required attempt — see "Shipping cost is mandatory" below
     "currency":      string | null,
     "eta_days":      string | null,      // e.g. "11-27" — a range, not a false-precise single number
     "ships_to":      string              // region the estimate is for, e.g. "CY" — always state this explicitly, never assume the reader knows. See reference/regions.md for the three regions (CY/UA/MD) this skill actually supports and their per-marketplace status.
+  },
+  "total_price": {   // required — item price + shipping.cost, same currency; see below
+    "amount":        number | null,   // null only if shipping.cost is null (genuinely unavailable)
+    "currency":      string
   },
   "verified":        boolean,   // required — true only once the page-level check in browser.md passed
   "verified_at":     string     // required when verified=true — ISO 8601 timestamp
 }
 ```
+
+## Shipping cost is mandatory, not a nice-to-have
+
+A card's `shipping.cost` must be **read from the candidate's own verified
+product page** (not guessed, not left null by default) before the card is
+presented — this isn't optional the way `rating`/`sold_count` genuinely can
+be unavailable. Confirmed live why this matters: an Amazon listing at
+**€17.21** showed **€15.04** in its own "Shipping & Import Charges to
+Cyprus" line — shipping added **87% to the item price**. Presenting the
+€17.21 alone as "the price" without that figure would have been actively
+misleading, not just incomplete.
+
+`shipping.cost` is only genuinely `null` when the product page itself
+doesn't expose a number for the target region (rare, but happens) — that's
+different from not having looked. Compute `total_price` = `price.amount +
+shipping.cost` (0 when `shipping.cost` is `"free"`) whenever both are
+known, and **rank/sort by `total_price`, not by `price.amount` alone**,
+whenever the buyer has stated a budget or price is a comparison criterion
+— a cheaper item with expensive shipping can easily lose to a pricier one
+with free shipping once landed cost is compared. Always show `total_price`
+alongside the item price when presenting a card, not price alone.
+
+Country-level shipping estimates (not a specific city/postal code) are
+sufficient for this skill's three supported regions (`regions.md`) — all
+three (CY, UA, MD) are small enough that carrier shipping rates don't vary
+within the country the way they might in, say, the continental US.
+Confirmed for Amazon: its shipping/import-charge estimate is shown against
+the country selected in "Deliver to", with no postal code entry involved.
+Don't build postal-code/address-entry automation for these three regions —
+that would be solving a problem this skill doesn't have.
 
 ## Ranking rule
 

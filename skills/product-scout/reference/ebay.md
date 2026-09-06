@@ -56,7 +56,7 @@ stating it "may not ship to United States" at all. Don't treat the
 search-card price/availability as final — the product page's native price
 and its own shipping/location section are the source of truth.
 
-## 4. Shipping and region — check per-listing, don't assume
+## 4. Shipping and region — check per-listing, don't assume, and it's mandatory
 
 eBay shipping cost and availability are set per-seller, per-listing — there
 is no single "shipping to region X costs Y" rule the way some marketplaces
@@ -64,6 +64,10 @@ have. Read the actual shipping section on each verified listing's product
 page rather than extrapolating from the search card's shipping text, which
 reflects whatever ship-to default the current browser session has (see
 `browser.md` §4) and can be silently wrong for the buyer's actual region.
+This is required for every card, not optional — compute `total_price`
+(item + shipping) per `card-schema.md` the same as every other
+marketplace; don't let "it's per-listing and annoying to check" become an
+excuse to skip it.
 
 **Never force ship-to location via URL query parameters** (`_stpos`,
 `LH_PrefLoc`, and similar) — confirmed live to trigger eBay's bot-check

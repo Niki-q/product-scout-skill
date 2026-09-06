@@ -77,14 +77,29 @@ result for an exact product name as a cue to broaden the search (brand +
 category, drop the specific model name) before concluding the platform
 doesn't carry it.
 
-## 6. Shipping cost
+## 6. Shipping cost — mandatory per card, check the product page, not just the search card
 
 Unlike eBay (per-listing, seller-set), AliExpress shipping to a localized
 address (confirmed for CY and UA) is usually either genuinely free (common
-on "Shipped by AliExpress"-fulfilled listings) or a flat estimate shown
-directly on the search card / product page for the localized session. Read
-whichever figure the localized session actually shows rather than assuming
-a fixed shipping cost across listings — it varies by seller and
-fulfillment method even within one search. For Moldova, this doesn't apply
-— see §1 and `regions.md`, there's no working localized MD session to read
-a shipping figure from in the first place.
+on "Shipped by AliExpress"-fulfilled listings) or a flat estimate. **Check
+the item's own product page**, not just the search card — confirmed live,
+the pattern is: look for "Бесплатная доставка" (free shipping) first; if
+absent, search the page text near "доставка" for a price figure instead
+(the estimate — and sometimes only a delivery-date range with no price
+shown at all, which is itself worth flagging rather than silently treating
+as free):
+
+```js
+const bodyText = document.body.innerText;
+const isFree = /Бесплатная доставка/i.test(bodyText);
+const shipMatch = bodyText.match(/доставка[^\n]{0,100}/i);
+```
+
+Read whichever figure the localized session actually shows rather than
+assuming a fixed shipping cost across listings — it varies by seller and
+fulfillment method even within one search. Compute `total_price` per
+`card-schema.md` the same as every other marketplace — don't skip this
+just because AliExpress shipping is free more often than not; a candidate
+with *paid* shipping in the same result set still needs it counted. For
+Moldova, this doesn't apply — see §1 and `regions.md`, there's no working
+localized MD session to read a shipping figure from in the first place.

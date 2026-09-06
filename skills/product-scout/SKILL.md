@@ -44,16 +44,25 @@ taking any of this on faith.
 4. **Verify every candidate worth keeping** on its real product page before
    it counts as a result — this is not optional and not skippable under
    time pressure. See `browser.md` §5 and each marketplace file's own
-   verification note for why.
-5. **Normalize into the shared card shape** in `reference/card-schema.md`
-   and **rank by review/sold count over raw rating** when ratings are
-   close — a high star rating on a tiny sample size is not more reliable
-   than a slightly lower one on a large sample.
+   verification note for why. **Read the actual shipping cost off that
+   same product page while you're there** — every marketplace file has its
+   own confirmed pattern for this (`amazon.md` §5, `ebay.md` §4,
+   `aliexpress.md` §6). This is mandatory, not a nice-to-have: a live test
+   found an Amazon item at €17.21 with **€15.04** shipping to Cyprus —
+   skipping this would have understated the real cost by 87%.
+5. **Normalize into the shared card shape** in `reference/card-schema.md`,
+   compute `total_price` (item + shipping) for every card, and **rank by
+   `total_price`, not `price` alone**, whenever budget is a criterion — see
+   `card-schema.md`'s worked example of why item price alone can flip the
+   actual best deal. Separately, **rank by review/sold count over raw
+   rating** when ratings are close — a high star rating on a tiny sample
+   size is not more reliable than a slightly lower one on a large sample.
 6. **Present up to the number of cards asked for** (default 5 if unstated),
-   each with: title, price + currency, rating/review or sold count if
-   available, a real shipping estimate for the buyer's actual region (or an
-   explicit note that the session wasn't localized and the figure may not
-   apply), and the verified canonical product URL. Never present an
+   each with: title, item price, **shipping cost and the resulting total
+   price** (or an explicit note that shipping was genuinely unavailable —
+   never just the item price silently standing in for the full cost),
+   rating/review or sold count if available, which region the shipping
+   figure is for, and the verified canonical product URL. Never present an
    unverified candidate as if it were a verified result.
 
 ## Region and shipping
