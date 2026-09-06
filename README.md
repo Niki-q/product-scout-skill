@@ -3,8 +3,8 @@
 A Claude Code skill for personal product research across Amazon, eBay, and
 AliExpress — find real, currently-listed products against a set of buying
 criteria, with every result verified on its actual product page, and
-pricing/shipping estimates for the buyer's real region (built and tested
-against EU/Cyprus).
+region-aware pricing/shipping for three supported delivery regions:
+**Cyprus, Ukraine, Moldova**.
 
 ## Status: v1 implemented
 
@@ -67,6 +67,22 @@ A second live run (*"windproof automatic umbrella, compact"*, AliExpress
 only) returned a top pick at €23.61 with 61,515 sold — filtering out lower
 -trust cheap listings the same way.
 
+## Supported regions
+
+Cyprus, Ukraine, and Moldova were live-tested end to end — see
+`skills/product-scout/reference/regions.md` for the full findings. Short
+version:
+
+| | Amazon | eBay | AliExpress |
+|---|---|---|---|
+| Cyprus | ✅ native | ✅ | ✅ native, EUR |
+| Ukraine | ✅ via "Deliver to" dialog | ✅ (country present) | ✅ via region switch, but **UAH, not EUR** |
+| Moldova | ✅ via "Deliver to" dialog | ✅ (country present) | ❌ **broken** — silently redirects to a Russia-market site with no Moldova option |
+
+The AliExpress/Moldova finding is the one sharp edge: don't attempt region
+selection for MD there, it resets the session to Russia/RUB with no way
+back to Moldova. Amazon and eBay have no such issue for any of the three.
+
 ## Scope (v1)
 
 - Amazon, eBay, AliExpress.
@@ -81,10 +97,13 @@ See each `reference/*.md` file's own notes for exactly what was confirmed
 against a real page during development versus carried over from a
 community skill's description without independent testing — most notably,
 **eBay search-URL filter parameters (price range, condition, buying
-format, location) could not be verified**: two separate live attempts both
-triggered eBay's bot-check interstitial. The pipeline works around this by
-filtering extracted candidates client-side instead of relying on
-server-side query parameters — see `reference/ebay.md` §2.
+format, location) could not be verified**: multiple separate live attempts
+all triggered eBay's bot-check interstitial — including, later, a bare
+keyword search performed right after a legitimate UI-based region change.
+eBay is the most bot-check-prone of the three marketplaces in an automated
+session; the pipeline works around the parameter issue by filtering
+extracted candidates client-side instead of relying on server-side query
+parameters — see `reference/ebay.md` §2 and `reference/regions.md`.
 
 ## Roadmap
 
@@ -98,10 +117,12 @@ server-side query parameters — see `reference/ebay.md` §2.
       patterns, each tracked with a verified (`V`) / unverified (`U`) status.
 - [x] Amazon support, ported from the verify-before-present pipeline above.
 - [x] eBay support (built from scratch, no reference implementation existed).
-- [x] AliExpress support, adapted for EU/CY pricing and shipping instead of
+- [x] AliExpress support, adapted for the target regions instead of
       Israeli tax rules.
 - [x] Live test pass (tongue scraper across all three marketplaces; a
       windproof umbrella query on AliExpress) — see "Example run" above.
+- [x] Region support for Cyprus/Ukraine/Moldova, live-verified per
+      marketplace — see "Supported regions" above and `reference/regions.md`.
 - [ ] Regional marketplaces (Rozetka/Allegro/Otto/Kaufland) and Temu — no
       reference implementation to build from; deferred, see the project's
       own backlog.

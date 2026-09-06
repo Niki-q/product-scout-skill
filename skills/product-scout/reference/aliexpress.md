@@ -5,21 +5,31 @@ selector-verification discipline (§`browser.md`, `selectors.md`) and the
 "no parallel tabs, CAPTCHA is a stop" rules — but **not** its tax logic.
 That skill is built around Israeli VAT bands (the $75 de-minimis, ILS/FX
 handling) and Hebrew/`he.aliexpress.com` locale handling; none of that
-applies here. This adapts the same architecture for EU/Cyprus pricing and
-shipping instead.
+applies here. This adapts the same architecture for the regions this
+project targets — Cyprus, Ukraine, Moldova — instead; see `regions.md` for
+per-region status (short version: CY and UA work, MD does not).
 
 ## 1. Region must be real, not assumed
 
 AliExpress prices and shipping estimates are meaningless unless the
 session is actually localized to the buyer's region. A localized session
-shows EUR pricing and carries a country tag in its result URLs (see below);
-an unauthenticated/default session may show USD or a different region's
-numbers with no warning. If the buyer can provide a cookie export from a
-logged-in session already set to their region (as was done to build this
-pipeline — a `region=CY, currency=EUR` cookie set applied via
-`context.addCookies()`), use it; otherwise flag explicitly that shown
-prices/shipping may not reflect the buyer's actual region and cost
-(`browser.md` §4).
+carries a country tag in its result URLs (see below); an
+unauthenticated/default session may show USD or a different region's
+numbers with no warning, and even a *correctly* localized session's
+currency isn't always the one you'd expect (Ukraine localizes to UAH, not
+EUR — see `regions.md`).
+
+The region switch is a normal logged-in-user UI flow, not something
+requiring a special cookie export in general — click the header's
+country/flag icon, pick a country from the list, save. A pre-authenticated
+cookie jar (as used to build this pipeline, applied via
+`context.addCookies()`) just saves re-doing that click-through and any
+login every run; it's a convenience, not a requirement. Either way,
+confirm the session actually localized to the target region before
+trusting a price (`browser.md` §4) — **and for Moldova specifically, don't
+even attempt this: see `regions.md`, region selection is broken and
+silently redirects to an unrelated Russia-market site.** For CY/UA, see
+`regions.md` for the confirmed mechanics and currency-per-region details.
 
 **A regional cookie session can still land on a different-looking hostname
 ** (e.g. `tr.aliexpress.com` via a `gatewayAdapt=...` redirect) without the
@@ -67,12 +77,14 @@ result for an exact product name as a cue to broaden the search (brand +
 category, drop the specific model name) before concluding the platform
 doesn't carry it.
 
-## 6. Shipping cost — EU/Cyprus specifics
+## 6. Shipping cost
 
-Unlike eBay (per-listing, seller-set), AliExpress shipping to an EU/CY
-address is usually either genuinely free (common on "Shipped by
-AliExpress"-fulfilled listings) or a flat estimate shown directly on the
-search card / product page for the localized session. Read whichever
-figure the localized session actually shows rather than assuming a fixed
-shipping cost across listings — it varies by seller and fulfillment method
-even within one search.
+Unlike eBay (per-listing, seller-set), AliExpress shipping to a localized
+address (confirmed for CY and UA) is usually either genuinely free (common
+on "Shipped by AliExpress"-fulfilled listings) or a flat estimate shown
+directly on the search card / product page for the localized session. Read
+whichever figure the localized session actually shows rather than assuming
+a fixed shipping cost across listings — it varies by seller and
+fulfillment method even within one search. For Moldova, this doesn't apply
+— see §1 and `regions.md`, there's no working localized MD session to read
+a shipping figure from in the first place.

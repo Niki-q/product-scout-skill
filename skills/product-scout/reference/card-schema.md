@@ -25,7 +25,7 @@ did not verify cleanly and should not be presented as a result.
     "cost":          number | "free" | null,
     "currency":      string | null,
     "eta_days":      string | null,      // e.g. "11-27" — a range, not a false-precise single number
-    "ships_to":      string              // region the estimate is for, e.g. "CY" — always state this explicitly, never assume the reader knows
+    "ships_to":      string              // region the estimate is for, e.g. "CY" — always state this explicitly, never assume the reader knows. See reference/regions.md for the three regions (CY/UA/MD) this skill actually supports and their per-marketplace status.
   },
   "verified":        boolean,   // required — true only once the page-level check in browser.md passed
   "verified_at":     string     // required when verified=true — ISO 8601 timestamp

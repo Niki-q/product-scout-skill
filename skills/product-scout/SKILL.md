@@ -58,16 +58,29 @@ taking any of this on faith.
 
 ## Region and shipping
 
-Every marketplace file has its own region caveats (`browser.md` §4 covers
-the general principle) — a price or shipping figure is only meaningful if
-you've confirmed which region it was rendered for. Default to the buyer's
-stated region; if none was stated, ask rather than silently assuming US
-pricing applies.
+Three regions are supported end-to-end and were live-tested during
+development: **Cyprus (CY)**, **Ukraine (UA)**, **Moldova (MD)** — see
+`reference/regions.md` for the exact per-marketplace mechanics and status.
+A price or shipping figure is only meaningful if you've confirmed which
+region it was rendered for (`browser.md` §4 covers the general principle).
+Default to the buyer's stated region; if none was stated, ask rather than
+silently assuming US pricing applies. For any other region, the same
+mechanics likely apply (each marketplace's region-switch UI is generic),
+but nothing beyond CY/UA/MD has been live-tested — say so if asked about a
+region outside these three.
+
+**One hard limitation to know up front:** AliExpress does not work for
+Moldova — selecting Moldova in its region picker silently redirects to a
+separate Russia-market site with no Moldova option at all, resetting the
+session to a Russian region/currency. For an MD buyer, skip AliExpress
+(Amazon and eBay both work cleanly for MD) unless the user explicitly
+accepts an unlocalized/CY-approximate AliExpress result with that caveat
+stated plainly. See `regions.md` for the full finding.
 
 ## Scope
 
-Amazon, eBay, AliExpress only, v1. Temu and regional marketplaces
-(Rozetka, Allegro, Otto, Kaufland) are explicitly out of scope — no
-reference implementation exists for them anywhere, adapting one of the
-above patterns to them without live verification first would be guessing,
-not scouting.
+Amazon, eBay, AliExpress only, v1, for CY/UA/MD delivery regions. Temu and
+regional marketplaces (Rozetka, Allegro, Otto, Kaufland) are explicitly out
+of scope — no reference implementation exists for them anywhere, adapting
+one of the above patterns to them without live verification first would be
+guessing, not scouting.

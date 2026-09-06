@@ -65,13 +65,18 @@ page rather than extrapolating from the search card's shipping text, which
 reflects whatever ship-to default the current browser session has (see
 `browser.md` §4) and can be silently wrong for the buyer's actual region.
 
-**Do not try to force a specific ship-to location via URL query parameters**
-(`_stpos`, `LH_PrefLoc`, and similar) on the default `ebay.com` domain —
-confirmed live to trigger eBay's bot-check interstitial
-(`ebay.com/splashui/challenge`, "Pardon Our Interruption"). Per
-`browser.md` §2, that's a stop, not a signal to retry with different
-parameters. If a country-specific price/availability view is genuinely
-needed, use eBay's own region-specific storefront domain instead.
+**Never force ship-to location via URL query parameters** (`_stpos`,
+`LH_PrefLoc`, and similar) — confirmed live to trigger eBay's bot-check
+interstitial (`ebay.com/splashui/challenge`, "Pardon Our Interruption").
+The legitimate mechanism is the **"Ship to" button in the site header** →
+"Set your shipping location" → its own "Ship to: <country>" button opens a
+country picker — see `regions.md` for the exact confirmed path and its
+current CY/UA/MD status. Per `browser.md` §2, hitting the bot-check is a
+stop, not a signal to retry with different parameters — and note that this
+UI path itself was seen to trigger the same bot-check on a subsequent
+search in testing, so treat eBay overall as bot-check-prone and space out
+requests rather than assuming the header UI is a safe workaround in every
+run.
 
 ## 5. Ranking
 

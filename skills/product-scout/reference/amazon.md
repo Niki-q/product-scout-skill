@@ -44,11 +44,17 @@ listing with an unknown/low review count is not automatically better than
 a 4.6★ organic listing with 19,000+ ratings — in a live test run, the
 latter was the actual best pick despite the lower star rating.
 
-## 5. Shipping / region caveat
+## 5. Shipping / region
 
-Amazon's own checkout shows the real shipping cost and import-charge
-estimate for the buyer's delivery address — this is more reliable than
-guessing from the product page alone. If the buyer's region isn't the
-default storefront's region, either switch storefronts (co.uk/de/etc.) or
-note plainly that the price shown is for the default region and may not
-reflect the buyer's actual landed cost.
+For CY/UA/MD specifically, see `regions.md` — no separate storefront
+switch is needed: the default `amazon.com` "Deliver to" dialog (header
+button → "or ship outside the US") lists all three directly and was
+confirmed live to return identical pricing across them on a test product.
+Amazon's own checkout (or the "Shipping & Import Charges" line, where
+shown) has the real, final shipping/import estimate for the buyer's
+delivery address — more reliable than guessing from the product page
+alone, and worth checking per-listing since its presence wasn't consistent
+across every offer type in testing (see `regions.md`'s caveat on this).
+For any region outside CY/UA/MD, either use the same "Deliver to" dialog
+if it lists that country, or note plainly that the shown price is for the
+default region and may not reflect the buyer's actual landed cost.
