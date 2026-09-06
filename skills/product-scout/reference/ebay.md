@@ -76,7 +76,14 @@ stop, not a signal to retry with different parameters — and note that this
 UI path itself was seen to trigger the same bot-check on a subsequent
 search in testing, so treat eBay overall as bot-check-prone and space out
 requests rather than assuming the header UI is a safe workaround in every
-run.
+run. Confirmed again in a later, separate session on the same browser
+profile: even a completely bare `_nkw=`-only keyword search (no region
+change, no other parameters, first request of that run) hit the same
+interstitial — this looks like the automation profile itself accumulating
+a bot-risk score over a day of testing rather than a per-request trigger.
+If eBay keeps bot-checking a fresh, minimal request, that's a sign the
+current browser profile is flagged and a plain retry won't help — say so
+plainly rather than repeatedly retrying.
 
 ## 5. Ranking
 
