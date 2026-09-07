@@ -104,3 +104,34 @@ match what the search page claimed. This is the single most important rule
 in this file — it's what prevents the exact mismatch bug that motivated
 rule 1. A card that hasn't been through this check is a candidate, not a
 result, and must not be presented as one.
+
+## 6. Authenticated sessions — local cookie files, never in the repo
+
+Amazon and AliExpress both work better with the buyer's real, logged-in
+session than anonymous browsing — confirmed live: an authenticated Amazon
+session's saved address carries a real city/postal code (`amazon.md` §6)
+instead of just a country, and an authenticated AliExpress session keeps
+region localization working identically to anonymous (`aliexpress.md`).
+
+**Convention: check for a local cookie file before asking the user to
+paste cookies into the conversation.** Per marketplace, a plain JSON array
+(same shape browser cookie-export extensions produce — `name`, `value`,
+`domain`, `path`, `secure`, `httpOnly`, `sameSite`, `expirationDate`) at:
+
+- `~/.product-scout/cookies/amazon.json`
+- `~/.product-scout/cookies/aliexpress.json`
+
+(on Windows, `~` is `C:\Users\<user>\`). At the start of a session, if the
+file for the marketplace you're about to use exists, read it and apply it
+with `context.addCookies()` before navigating — don't wait for the user to
+paste cookies again just because they aren't already in this
+conversation's context. If the file doesn't exist, fall back to anonymous
+browsing and say so explicitly (`browser.md` §4 still applies — an
+anonymous session's region still needs confirming).
+
+**These files live outside this repo and must never be committed** — they
+are real, sensitive session credentials, not test fixtures. If a cookie
+file's cookies turn out to be expired (login check fails, e.g. no account
+greeting where one's expected), say so and ask the user for a fresh
+export — don't silently keep retrying, and don't treat an expired file as
+evidence the loading mechanism itself is broken.

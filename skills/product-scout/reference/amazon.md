@@ -84,8 +84,11 @@ default region and may not reflect the buyer's actual landed cost.
 
 ## 6. Authenticated session (real account cookies) — preferred when available
 
-If the buyer provides real, logged-in Amazon session cookies, use them
-(via `context.addCookies()`) instead of an anonymous session — confirmed
+Check `~/.product-scout/cookies/amazon.json` first (`browser.md` §6) — if
+it exists, load it automatically instead of asking the buyer to paste
+cookies again. If the buyer provides real, logged-in Amazon session
+cookies some other way, use them (via `context.addCookies()`) instead of
+an anonymous session — confirmed
 live to work cleanly (login confirmed via `#nav-link-accountList
 .nav-line-1` showing "Hello, `<name>`"). This is strictly better than the
 anonymous "Deliver to `<country>`" flow: the account's own **saved address
