@@ -129,10 +129,13 @@ parameters — see `reference/ebay.md` §2 and `reference/regions.md`.
       marketplace — see "Supported regions" above and `reference/regions.md`.
 - [x] eBay via [`ebay-browse-mcp`](https://github.com/Niki-q/ebay-browse-mcp)
       (official Browse API) as the preferred path, wired into `ebay.md` §0
-      with a full field mapping to the card schema — code-complete and
-      unit-tested, but not yet exercised against real eBay data (that repo
-      is waiting on Production API keys; Sandbox only returns seeded test
-      listings, not real ones).
+      with a full field mapping to the card schema — **live-verified against
+      Production data**: a real search returned 3,091 total results for
+      "stainless steel tongue scraper", and `ebay_get_item` returned real
+      per-option shipping costs (e.g. free in ~2-4 weeks vs. $20 in 3-4
+      days) for one of them — including a listing (`225797704541`, $5.80)
+      that matched a result independently found via the Playwright fallback
+      earlier, cross-confirming both paths return consistent data.
 - [ ] Regional marketplaces (Rozetka/Allegro/Otto/Kaufland) and Temu — no
       reference implementation to build from; deferred, see the project's
       own backlog.
