@@ -40,7 +40,14 @@ taking any of this on faith.
    the relevant marketplace file (`reference/amazon.md`, `reference/ebay.md`,
    `reference/aliexpress.md`) for the actual extraction pattern —
    `reference/selectors.md` has the concrete, version-dated DOM patterns
-   each of those files points at.
+   each of those files points at. **For eBay specifically, check first
+   whether the `ebay_search_items`/`ebay_get_item` MCP tools are
+   available** (the `ebay-browse-mcp` server) — if so, use those instead of
+   Playwright per `ebay.md` §0; that path also collapses steps 4 and 5
+   below into the one `ebay_get_item` call, since it returns authoritative,
+   already-verified data with real shipping included. Playwright stays the
+   fallback for eBay when that server isn't configured, and remains the
+   only path for Amazon/AliExpress.
 4. **Verify every candidate worth keeping** on its real product page before
    it counts as a result — this is not optional and not skippable under
    time pressure. See `browser.md` §5 and each marketplace file's own

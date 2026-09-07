@@ -4,6 +4,55 @@ No mature community skill existed for personal (non-seller) eBay shopping
 research at the time this was written — this pipeline was built from
 scratch and verified live, not ported from a reference implementation.
 
+## 0. Preferred path: the `ebay-browse-mcp` MCP server
+
+If the `ebay_search_items` / `ebay_get_item` tools are available (the
+[`ebay-browse-mcp`](https://github.com/Niki-q/ebay-browse-mcp) MCP server
+is configured), **use them instead of everything below** — Playwright/DOM
+scraping is the fallback for when that server isn't set up, not the
+default. It wraps eBay's official Browse API (app-level OAuth, no user
+login, no bot-check risk) and was built specifically because the
+Playwright path here kept hitting eBay's bot-check (§2/§4 below).
+
+Pipeline via the MCP tools:
+
+1. `ebay_search_items({ keyword, country })` — `country` is the buyer's
+   2-letter region (`CY`/`UA`/`MD`). Returns candidates with title, price,
+   condition, canonical `itemWebUrl`, and a *coarse* shipping estimate —
+   candidates, not verified cards, same as the scraped path.
+2. For each candidate worth keeping, `ebay_get_item({ itemId, country })` —
+   this **is** the verification step (§3) and the shipping step (§4) in one
+   call. There's no title/price scraping mismatch to guard against here:
+   `getItem` is authoritative API data for that exact `itemId`, not a
+   second DOM read that could drift from the search result. Its
+   `shippingOptions` carries the real, region-accurate cost.
+
+Field mapping, `ebay_get_item` response → `card-schema.md`:
+
+| Browse API field | Card field | Notes |
+|---|---|---|
+| `itemId` | `id` | |
+| `title` | `title` | Already authoritative — see above, no separate verification read needed. |
+| `itemWebUrl` | `url` | Canonical, straight from the API — no tracking-param stripping needed. |
+| `price.amount` / `price.currency` | `price.amount` / `price.currency` | |
+| `condition` | `condition` | eBay's condition strings are more granular than the schema's 3 buckets — map `NEW*` → `"new"`; `CERTIFIED_REFURBISHED` / `SELLER_REFURBISHED` → `"refurbished"`; everything else (`USED_*`, `FOR_PARTS_OR_NOT_WORKING`, etc.) → `"used"` (note "for parts" separately in presentation prose, don't silently call it ordinary used). |
+| `shippingOptions[0].cost` | `shipping.cost` | Already normalized to `"free"` when eBay charges nothing — pass through as-is. |
+| `shippingOptions[0].currency` | `shipping.currency` | |
+| `shippingOptions[0].minDays`–`maxDays` | `shipping.eta_days` | Format as `"<min>-<max>"`, same range convention as the other marketplaces. |
+| `shipToLocationUnavailable` | — | If `true`, treat `shipping.cost` as unavailable for that region (`null`), not as free/zero — don't let an empty `shippingOptions` array silently read as "no shipping cost". |
+| `seller.feedbackScore` | — | No schema field for this (it's seller-level, not item-level, same reason `rating` stays `null` for eBay per §5) — mention it in presentation prose as an informal trust signal if notably low, don't invent a schema slot for one marketplace's quirk. |
+
+`rating` and `sold_count` stay `null` via the API the same as via scraping
+— the Browse API doesn't expose either at the item level; §5's ranking
+guidance (sold count / price fit, don't fabricate a rating) still applies.
+
+---
+
+**Everything below (§1-§5) is the Playwright fallback** for when
+`ebay-browse-mcp` isn't configured. Criteria-gathering (§1) and ranking
+(§5) apply either way; §2-§4 are scrape-specific and moot once the MCP
+tools are in play.
+
 ## 1. Gather criteria, same as Amazon
 
 Budget, use case, deal-breakers — see `amazon.md` §1, identical reasoning.

@@ -23,8 +23,12 @@ cp -r product-scout-skill/skills/product-scout ~/.claude/skills/product-scout
 ```
 
 The skill is entirely self-contained — `SKILL.md` plus its `reference/`
-files, no external dependencies, no API keys. It only needs a browser
-automation tool (e.g. the Playwright MCP server) available to the agent.
+files, no external dependencies, no API keys required. It needs a browser
+automation tool (e.g. the Playwright MCP server) available to the agent
+for Amazon and AliExpress. For eBay, it prefers the companion
+[`ebay-browse-mcp`](https://github.com/Niki-q/ebay-browse-mcp) server
+(official Browse API, no bot-check risk) when configured, falling back to
+Playwright otherwise — see `reference/ebay.md` §0.
 
 ## Why
 
@@ -123,6 +127,12 @@ parameters — see `reference/ebay.md` §2 and `reference/regions.md`.
       windproof umbrella query on AliExpress) — see "Example run" above.
 - [x] Region support for Cyprus/Ukraine/Moldova, live-verified per
       marketplace — see "Supported regions" above and `reference/regions.md`.
+- [x] eBay via [`ebay-browse-mcp`](https://github.com/Niki-q/ebay-browse-mcp)
+      (official Browse API) as the preferred path, wired into `ebay.md` §0
+      with a full field mapping to the card schema — code-complete and
+      unit-tested, but not yet exercised against real eBay data (that repo
+      is waiting on Production API keys; Sandbox only returns seeded test
+      listings, not real ones).
 - [ ] Regional marketplaces (Rozetka/Allegro/Otto/Kaufland) and Temu — no
       reference implementation to build from; deferred, see the project's
       own backlog.
